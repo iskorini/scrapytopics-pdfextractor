@@ -4,7 +4,7 @@ import boto3
 
 app = Chalice(app_name='PDFExtractor')
 
-s3 = boto3.client()
+s3 = boto3.client(service_name="s3")
 
 @app.lambda_function()
 def pdf_handler(event, context):

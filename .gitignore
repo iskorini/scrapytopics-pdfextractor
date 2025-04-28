@@ -1,5 +1,5 @@
-./lambda/.chalice/deployments/
-./lambda/.chalice/venv/
+lambda/.chalice/deployments
+lambda/.chalice/venv/
 .vscode/
 .venv
 .DS_Store
