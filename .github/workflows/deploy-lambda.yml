@@ -28,7 +28,7 @@ jobs:
       run: |
         uv venv .venv
         source .venv/bin/activate
-        uv pip sync
+        uv pip sync uv.lock
 
     - name: Package Lambda with Chalice
       run: |
