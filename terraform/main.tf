@@ -13,6 +13,7 @@ provider "aws" {
 
 resource "aws_s3_bucket" "scrapy_topics_bucket" {
     bucket = var.scrapy_topics_bucket
+    force_destroy = true
 }
 
 resource "aws_lambda_function" "pdfextractor_lambda" {

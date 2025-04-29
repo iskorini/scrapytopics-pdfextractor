@@ -6,56 +6,88 @@ on:
       - main
 
 jobs:
-  deploy:
+  package-lambda:
     runs-on: ubuntu-latest
+    outputs:
+      package-path: ${{ steps.set-output.outputs.package-path }}
 
     env:
-      LAMBDA_PACKAGE_PATH: terraform/deployment.zip
+      LAMBDA_NAME: pdfextractor
+      SITE_PACKAGES: lambda/python
+      PACKAGE_OUTPUT: terraform/deployment.zip
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup uv
-      uses: astral-sh/setup-uv@v1
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
 
-    - name: Recreate virtualenv
-      run: |
-        uv venv .venv
-        source .venv/bin/activate
-        uv sync
-    
-    - name: Export requirements for chalice
-      run: uv pip freeze > lambda/requirements.txt
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v1
 
-    - name: Package Lambda with Chalice
-      run: |
-        source .venv/bin/activate
-        cd ./lambda
-        chalice package lambda-package --pkg-format terraform
-        cd ..
-        cp ./lambda/lambda-package/deployment.zip ${{ env.LAMBDA_PACKAGE_PATH }}
+      - name: Clean old package
+        run: rm -rf lambda/lambda-package lambda/python ${{ env.PACKAGE_OUTPUT }}
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: 1.11.4
+      - name: Export & Install Lambda dependencies
+        run: |
+          uv export --project="${{ env.LAMBDA_NAME }}" --no-editable --no-dev | \
+          uv pip install \
+            --no-installer-metadata \
+            --no-compile-bytecode \
+            --python-platform x86_64-manylinux2014 \
+            --python 3.12 \
+            --target "${{ env.SITE_PACKAGES }}" \
+            -r requirements.txt
 
-    - name: Terraform Init
-      working-directory: terraform
-      run: terraform init
+      - name: Copy Lambda source code
+        run: |
+          mkdir -p lambda/python
+          cp -r ${{ env.LAMBDA_NAME }}/* lambda/python/
 
-    - name: Terraform Plan
-      working-directory: terraform
-      run: terraform plan -out plan.out
+      - name: Zip Lambda package
+        run: |
+          cd lambda/python
+          zip -r ../deployment.zip .
+          cd ../..
 
-    - name: Terraform Apply
-      working-directory: terraform
-      run: terraform apply plan.out
+      - name: Move deployment.zip to terraform dir
+        id: set-output
+        run: |
+          mkdir -p $(dirname "${{ env.PACKAGE_OUTPUT }}")
+          mv lambda/deployment.zip "${{ env.PACKAGE_OUTPUT }}"
+          echo "package-path=${{ env.PACKAGE_OUTPUT }}" >> "$GITHUB_OUTPUT"
+
+  deploy-infrastructure:
+    runs-on: ubuntu-latest
+    needs: package-lambda
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan -out plan.out
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply plan.out
