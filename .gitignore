@@ -5,3 +5,4 @@ lambda/.chalice/venv/
 .DS_Store
 lambda/__pycache__
 lambda/lambda-package
+lambda/requirements.txt
