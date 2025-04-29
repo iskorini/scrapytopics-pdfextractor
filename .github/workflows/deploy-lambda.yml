@@ -38,7 +38,8 @@ jobs:
         source .venv/bin/activate
         cd ./lambda
         chalice package lambda-package --pkg-format terraform
-        cp lambda-package/deployment.zip ${{ env.LAMBDA_PACKAGE_PATH }}
+        cd ..
+        cp ./lambda/lambda-package/deployment.zip ${{ env.LAMBDA_PACKAGE_PATH }}
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
@@ -47,7 +48,9 @@ jobs:
 
     - name: Terraform Init
       working-directory: terraform
-      run: terraform init
+      run: |
+          cd ./terraform 
+          terraform init
 
     - name: Terraform Plan
       working-directory: terraform
