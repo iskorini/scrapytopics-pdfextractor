@@ -30,6 +30,7 @@ def pdf_handler(event, context):
         try:
             text = s3.get_object(Bucket=BUCKET_NAME, Key=key)
             text = text["Body"].read().decode("utf-8")
+            logger.info("returning cached object")
             return {"filename": body["filename"], "text": text, "cached": True}
         except s3.exception.NoSuchKey:
             pass 
