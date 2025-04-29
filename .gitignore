@@ -1,8 +1,8 @@
-lambda/.chalice/deployments
-lambda/.chalice/venv/
+pdfextractor/.chalice/deployments
+pdfextractor/.chalice/venv/
 .vscode/
 .venv
 .DS_Store
-lambda/__pycache__
-lambda/lambda-package
-lambda/requirements.txt
+pdfextractor/__pycache__
+pdfextractor/lambda-package
+pdfextractor/requirements.txt
