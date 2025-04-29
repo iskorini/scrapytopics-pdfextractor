@@ -18,7 +18,7 @@ resource "aws_s3_bucket" "scrapy_topics_bucket" {
 
 resource "aws_lambda_function" "pdfextractor_lambda" {
     function_name = var.lambda_function_name
-    filename      = "lambda_pdfextractor.zip"
+    filename      = "deployment.zip"
     handler       = "app.pdf_handler"
     runtime       = "python3.12"
     role          = aws_iam_role.lambda_exec.arn
