@@ -32,6 +32,7 @@ resource "aws_lambda_function" "pdfextractor_lambda" {
   role          = aws_iam_role.lambda_exec.arn
   layers        = [aws_lambda_layer_version.pdfextractor_layer.arn]
   timeout       = 60
+  memory_size   = 512
 }
 
 
