@@ -1,6 +1,6 @@
 terraform {
     backend s3 {
-        bucket = "schipani-tf-state"
+        bucket = "fschipani-tf-state"
         key = "pdfextractor/terraform.tfstate"
         region = "eu-south-1"
         encrypt=true
