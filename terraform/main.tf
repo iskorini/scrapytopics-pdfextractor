@@ -31,6 +31,7 @@ resource "aws_lambda_function" "pdfextractor_lambda" {
   runtime       = "python3.12"
   role          = aws_iam_role.lambda_exec.arn
   layers        = [aws_lambda_layer_version.pdfextractor_layer.arn]
+  timeout       = 60
 }
 
 
