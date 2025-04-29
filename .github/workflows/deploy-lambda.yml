@@ -13,7 +13,7 @@ jobs:
 
     env:
       LAMBDA_NAME: pdfextractor
-      SITE_PACKAGES: lambda/python
+      SITE_PACKAGES: pdfextractor/python
       PACKAGE_OUTPUT: terraform/deployment.zip
 
     steps:
@@ -29,11 +29,11 @@ jobs:
         uses: astral-sh/setup-uv@v1
 
       - name: Clean old package
-        run: rm -rf lambda/lambda-package lambda/python ${{ env.PACKAGE_OUTPUT }}
+        run: rm -rf pdfextractor/lambda-package pdfextractor/python ${{ env.PACKAGE_OUTPUT }}
 
       - name: Export & Install Lambda dependencies
         run: |
-          uv export --project="${{ env.LAMBDA_NAME }}" --no-editable --no-dev | \
+          uv export --no-editable --no-dev | \
           uv pip install \
             --no-installer-metadata \
             --no-compile-bytecode \
@@ -44,12 +44,12 @@ jobs:
 
       - name: Copy Lambda source code
         run: |
-          mkdir -p lambda/python
-          cp -r ${{ env.LAMBDA_NAME }}/* lambda/python/
+          mkdir -p pdfextractor/python
+          cp -r ${{ env.LAMBDA_NAME }}/* pdfextractor/python/
 
       - name: Zip Lambda package
         run: |
-          cd lambda/python
+          cd pdfextractor/python
           zip -r ../deployment.zip .
           cd ../..
 
@@ -57,7 +57,7 @@ jobs:
         id: set-output
         run: |
           mkdir -p $(dirname "${{ env.PACKAGE_OUTPUT }}")
-          mv lambda/deployment.zip "${{ env.PACKAGE_OUTPUT }}"
+          mv pdfextractor/deployment.zip "${{ env.PACKAGE_OUTPUT }}"
           echo "package-path=${{ env.PACKAGE_OUTPUT }}" >> "$GITHUB_OUTPUT"
 
   deploy-infrastructure:
