@@ -92,25 +92,25 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_attach" {
 }
 
 # API Gateway REST
-resource "aws_api_gateway_rest_api" "extract-pdf-api" {
-  name = "extract-pdf-api"
+resource "aws_api_gateway_rest_api" "pdf-api" {
+  name = "pdf-api"
 }
 
 resource "aws_api_gateway_resource" "extract" {
-  rest_api_id = aws_api_gateway_rest_api.extract-pdf-api.id
-  parent_id   = aws_api_gateway_rest_api.extract-pdf-api.root_resource_id
+  rest_api_id = aws_api_gateway_rest_api.pdf-api.id
+  parent_id   = aws_api_gateway_rest_api.pdf-api.root_resource_id
   path_part   = "extract"
 }
 
 resource "aws_api_gateway_method" "post" {
-  rest_api_id   = aws_api_gateway_rest_api.extract-pdf-api.id
+  rest_api_id   = aws_api_gateway_rest_api.pdf-api.id
   resource_id   = aws_api_gateway_resource.extract.id
   http_method   = "POST"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_integration" "lambda" {
-  rest_api_id             = aws_api_gateway_rest_api.extract-pdf-api.id
+  rest_api_id             = aws_api_gateway_rest_api.pdf-api.id
   resource_id             = aws_api_gateway_resource.extract.id
   http_method             = aws_api_gateway_method.post.http_method
   integration_http_method = "POST"
@@ -123,10 +123,10 @@ resource "aws_lambda_permission" "allow_api_gateway" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.pdfextractor_lambda.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.extract-pdf-api.execution_arn}/*/*"
+  source_arn    = "${aws_api_gateway_rest_api.pdf-api.execution_arn}/*/*"
 }
 
 resource "aws_api_gateway_deployment" "deployment" {
   depends_on = [aws_api_gateway_integration.lambda]
-  rest_api_id = aws_api_gateway_rest_api.extract-pdf-api.id
+  rest_api_id = aws_api_gateway_rest_api.pdf-api.id
 }
