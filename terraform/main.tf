@@ -33,6 +33,11 @@ resource "aws_lambda_function" "pdfextractor_lambda" {
   layers        = [aws_lambda_layer_version.pdfextractor_layer.arn]
   timeout       = 60
   memory_size   = 512
+  environment {
+    variables = {
+      BUCKET_NAME = var.scrapy_topics_bucket
+    }
+  }
 }
 
 

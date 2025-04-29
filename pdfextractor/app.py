@@ -14,6 +14,8 @@ app = Chalice(app_name='PDFExtractor')
 
 s3 = boto3.client(service_name="s3")
 
+BUCKET_NAME = os.getenv("BUCKET_NAME")
+
 @app.route("/extract", methods=["POST"], content_types=['application/json'], cors=True)
 def pdf_handler(event, context):
     request = app.current_request
@@ -26,7 +28,7 @@ def pdf_handler(event, context):
         key = f"txt/{file_hash}.txt"
         ### check in cache
         try:
-            text = s3.get_object(Bucket=os.getenv("BUCKET"), Key=key)
+            text = s3.get_object(Bucket=BUCKET_NAME, Key=key)
             text = text["Body"].read().decode("utf-8")
             return {"filename": body["filename"], "text": text, "cached": True}
         except s3.exception.NoSuchKey:
@@ -38,8 +40,8 @@ def pdf_handler(event, context):
         for page in reader.pages:
             text += page.extract_text()
         logger.info("text extracted")
-        s3.put_object(Bucket = os.getenv("BUCKET"), Key = key, body=text.encode("utf-8"))
-        logger.info(f"text saved in {os.getenv("BUCKET")}/{key}")
+        s3.put_object(Bucket = BUCKET_NAME, Key = key, body=text.encode("utf-8"))
+        logger.info(f"text saved in {BUCKET_NAME}/{key}")
         return {"filename": body["filename"], "text": text, "cached": False}
     except Exception as e:
         print(e)
