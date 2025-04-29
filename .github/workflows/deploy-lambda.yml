@@ -55,12 +55,11 @@ jobs:
           zip -r ../deployment.zip .
           cd ../..
 
-      - name: Move deployment.zip to terraform dir
-        id: set-output
-        run: |
-          mkdir -p $(dirname "${{ env.PACKAGE_OUTPUT }}")
-          mv deployment.zip "${{ env.PACKAGE_OUTPUT }}"
-          echo "package-path=${{ env.PACKAGE_OUTPUT }}" >> "$GITHUB_OUTPUT"
+      - name: Upload Lambda package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-package
+          path: deployment.zip
 
   deploy-infrastructure:
     runs-on: ubuntu-latest
@@ -76,6 +75,12 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Download Lambda package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-package
+          path: terraform
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
