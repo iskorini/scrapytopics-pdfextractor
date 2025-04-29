@@ -9,12 +9,14 @@ jobs:
   package-lambda:
     runs-on: ubuntu-latest
     outputs:
-      package-path: ${{ steps.set-output.outputs.package-path }}
+      code-path: ${{ steps.set-code-output.outputs.code-path }}
+      layer-path: ${{ steps.set-layer-output.outputs.layer-path }}
 
     env:
       LAMBDA_NAME: pdfextractor
-      SITE_PACKAGES: python
-      PACKAGE_OUTPUT: terraform/deployment.zip
+      LAMBDA_SOURCE_DIR: pdfextractor
+      LAYER_OUTPUT: terraform/layer.zip
+      CODE_OUTPUT: terraform/deployment.zip
 
     steps:
       - name: Checkout repository
@@ -30,36 +32,48 @@ jobs:
         with:
           version: "latest"
 
-      - name: Clean old package
-        working-directory: pdfextractor
-        run: rm -rf lambda-package python ${{ env.PACKAGE_OUTPUT }}
-
-      - name: Export & Install Lambda dependencies
-        working-directory: pdfextractor
+      # Crea layer.zip (con solo le dipendenze)
+      - name: Install dependencies in layer structure
+        working-directory: ${{ env.LAMBDA_SOURCE_DIR }}
         run: |
+          mkdir -p ../lambda-layer/python
           uv export --project="${{ env.LAMBDA_NAME }}" --no-editable --no-dev | \
           uv pip install \
             --no-compile-bytecode \
             --python 3.12 \
-            --target "${{ env.SITE_PACKAGES }}" \
+            --target ../lambda-layer/python \
             -r requirements.txt
 
-      - name: Copy Lambda source code
+      - name: Zip Lambda Layer
         run: |
-          mkdir -p python
-          cp -r ${{ env.LAMBDA_NAME }}/* python/
+          cd lambda-layer
+          zip -r ../layer.zip .
+          cd ..
+      
+      - name: Set layer output
+        id: set-layer-output
+        run: echo "layer-path=${{ env.LAYER_OUTPUT }}" >> "$GITHUB_OUTPUT"
 
-      - name: Zip Lambda package
+      # Crea deployment.zip (solo codice sorgente)
+      - name: Package Lambda function code only
         run: |
-          cd python
+          mkdir -p lambda-code
+          cp -r ${{ env.LAMBDA_SOURCE_DIR }}/* lambda-code/
+          cd lambda-code
           zip -r ../deployment.zip .
-          cd ../..
+          cd ..
 
-      - name: Upload Lambda package artifact
+      - name: Set code output
+        id: set-code-output
+        run: echo "code-path=${{ env.CODE_OUTPUT }}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: lambda-package
-          path: deployment.zip
+          name: lambda-artifacts
+          path: |
+            deployment.zip
+            layer.zip
 
   deploy-infrastructure:
     runs-on: ubuntu-latest
@@ -76,10 +90,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Download Lambda package artifact
+      - name: Download Lambda artifacts
         uses: actions/download-artifact@v4
         with:
-          name: lambda-package
+          name: lambda-artifacts
           path: terraform
 
       - name: Setup Terraform
