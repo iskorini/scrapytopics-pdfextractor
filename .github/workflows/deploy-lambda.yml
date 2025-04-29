@@ -28,7 +28,10 @@ jobs:
       run: |
         uv venv .venv
         source .venv/bin/activate
-        uv sync 
+        uv sync
+    
+    - name: Export requirements for chalice
+      run: uv pip freeze > lambda/requirements.txt
 
     - name: Package Lambda with Chalice
       run: |
