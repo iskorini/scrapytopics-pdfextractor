@@ -24,8 +24,10 @@ def pdf_handler(event, context):
         logger.info(f"PDF Pages {str(len(reader.pages))}")
         for page in reader.pages:
             text += page.extract_text()
+        logger.info("text extracted")
         output_key = f"txt/{key.rsplit('.', 1)[0]}.txt"
         s3.put_object(Bucket=bucket, Key=output_key, Body=text)
+        logger.info(f"text saved in {bucket}/{output_key}")
     except Exception as e:
         print(e)
         raise e
