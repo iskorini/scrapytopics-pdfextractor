@@ -1,7 +1,9 @@
 name: Deploy Lambda and Infrastructure
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -54,15 +56,6 @@ jobs:
       working-directory: terraform
       run: terraform plan -out plan.out
 
-    - name: Terraform Apply (manual approval)
+    - name: Terraform Apply
       working-directory: terraform
-      run: |
-        echo "Showing the Terraform Plan:"
-        terraform show plan.out
-        echo "Waiting for manual approval..."
-        read -p "Apply this plan? (y/N) " choice
-        if [ "$choice" = "y" ]; then
-          terraform apply plan.out
-        else
-          echo "Terraform apply aborted."
-          exit 1
+      run: terraform apply plan.out
