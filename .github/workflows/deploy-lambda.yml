@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      LAMBDA_PACKAGE_PATH: terraform/lambda_pdfextractor.zip
+      LAMBDA_PACKAGE_PATH: terraform/deployment.zip
 
     steps:
     - name: Checkout repository
