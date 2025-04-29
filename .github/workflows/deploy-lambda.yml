@@ -8,14 +8,13 @@ on:
 jobs:
   package-lambda:
     runs-on: ubuntu-latest
-    workdir: pdfextractor
     outputs:
       package-path: ${{ steps.set-output.outputs.package-path }}
 
     env:
       LAMBDA_NAME: pdfextractor
       SITE_PACKAGES: python
-      PACKAGE_OUTPUT: ../terraform/deployment.zip
+      PACKAGE_OUTPUT: terraform/deployment.zip
 
     steps:
       - name: Checkout repository
@@ -30,9 +29,11 @@ jobs:
         uses: astral-sh/setup-uv@v1
 
       - name: Clean old package
+        working-directory: pdfextractor
         run: rm -rf lambda-package python ${{ env.PACKAGE_OUTPUT }}
 
       - name: Export & Install Lambda dependencies
+        working-directory: pdfextractor
         run: |
           uv export --project="${env.LAMBDA_NAME}" --no-editable --no-dev | \
           uv pip install \
