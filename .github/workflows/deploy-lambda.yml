@@ -35,7 +35,7 @@ jobs:
       - name: Export & Install Lambda dependencies
         working-directory: pdfextractor
         run: |
-          uv export --project="${env.LAMBDA_NAME}" --no-editable --no-dev | \
+          uv export --project="${{ env.LAMBDA_NAME }}" --no-editable --no-dev | \
           uv pip install \
             --no-compile-bytecode \
             --python 3.12 \
