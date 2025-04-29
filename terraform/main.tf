@@ -13,6 +13,10 @@ provider "aws" {
 
 resource "aws_s3_bucket" "scrapy_topics_bucket" {
     bucket = var.scrapy_topics_bucket
+}
+
+resource "aws_s3_bucket_acl" "scrapy_topics_bucket_acl" {
+    bucket = aws_s3_bucket.scrapy_topics_bucket.id
     acl    = "private"
 }
 
@@ -21,7 +25,7 @@ resource "aws_lambda_function" "pdfextractor_lambda" {
     filename      = "deployment.zip"
     handler       = "app.pdf_handler"
     runtime       = "python3.12"
-    role          = aws_iam_role.lambda_exec.arn
+    role          = aws_iam_role.lambda_role.arn
 }
 
 resource "aws_iam_role" "lambda_role" { 
