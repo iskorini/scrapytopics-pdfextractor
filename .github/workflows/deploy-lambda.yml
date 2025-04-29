@@ -37,7 +37,6 @@ jobs:
         run: |
           uv export --project="${env.LAMBDA_NAME}" --no-editable --no-dev | \
           uv pip install \
-            --no-installer-metadata \
             --no-compile-bytecode \
             --python-platform x86_64-manylinux2014 \
             --python 3.12 \
