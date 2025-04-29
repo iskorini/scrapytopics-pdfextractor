@@ -2,6 +2,10 @@ from chalice import Chalice
 from pypdf import PdfReader
 import boto3
 import io
+import logging
+
+logger = logging.getLogger()
+logger.setLevel("INFO")
 
 app = Chalice(app_name='PDFExtractor')
 
@@ -11,11 +15,13 @@ s3 = boto3.client(service_name="s3")
 def pdf_handler(event, context):
     bucket = event['Records'][0]['s3']['bucket']['name']
     key = event['Records'][0]['s3']['object']['key']
+    logger.info(event)
     try:
         pdf = s3.get_object(Bucket=bucket, Key=key)
         body = pdf["Body"].read()
         reader = PdfReader(io.BytesIO(body))
         text = ""
+        logger.info(f"PDF Pages {str(len(reader.pages))}")
         for page in reader.pages:
             text += page.extract_text()
         output_key = f"txt/{key.rsplit('.', 1)[0]}.txt"
