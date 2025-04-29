@@ -8,7 +8,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AWS_REGION: eu-west-1
       LAMBDA_PACKAGE_PATH: terraform/lambda_pdfextractor.zip
 
     steps:
@@ -21,6 +20,7 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
+
     - name: Setup uv
       uses: astral-sh/setup-uv@v1
 
@@ -33,14 +33,14 @@ jobs:
     - name: Package Lambda with Chalice
       run: |
         source .venv/bin/activate
-        chalice package --stage dev lambda-package
-        mkdir -p terraform
+        cd ./lambda
+        chalice package lambda-package --pkg-format terraform
         cp lambda-package/deployment.zip ${{ env.LAMBDA_PACKAGE_PATH }}
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: 1.7.5
+        terraform_version: 1.11.4
 
     - name: Terraform Init
       working-directory: terraform

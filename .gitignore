@@ -4,3 +4,4 @@ lambda/.chalice/venv/
 .venv
 .DS_Store
 lambda/__pycache__
+lambda/lambda-package
