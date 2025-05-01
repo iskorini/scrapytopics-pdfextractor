@@ -25,7 +25,7 @@ def pdf_handler(event, context):
     try:
         file_b64 = body["file_content"]
         file_bytes = base64.b64decode(file_b64)
-        file_hash = hashlib.md5(file_b64).hexdigest()
+        file_hash = hashlib.md5(file_b64.encode()).hexdigest()
         key = f"txt/{file_hash}.txt"
         ### check in cache
         try:
@@ -34,6 +34,7 @@ def pdf_handler(event, context):
             logger.info("returning cached object")
             return {"filename": body["filename"], "text": text, "cached": True}
         except s3.exception.NoSuchKey:
+            logger.info("object not found in cache")
             pass 
         ###
         reader = PdfReader(io.BytesIO(file_bytes))
