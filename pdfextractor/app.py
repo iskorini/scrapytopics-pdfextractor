@@ -6,6 +6,7 @@ import logging
 import base64
 import hashlib
 import os
+import json
 
 logger = logging.getLogger()
 logger.setLevel("INFO")
@@ -18,8 +19,8 @@ BUCKET_NAME = os.getenv("BUCKET_NAME")
 
 @app.route("/extract", methods=["POST"], content_types=['application/json'], cors=True)
 def pdf_handler(event, context):
-    request = app.current_request
-    body = request.json_body
+    body = event["body"]
+    body = json.loads(body)
     logger.info(event)
     try:
         file_b64 = body["file_content"]
