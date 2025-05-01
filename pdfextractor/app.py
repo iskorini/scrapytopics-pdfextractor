@@ -46,7 +46,7 @@ def pdf_handler(event, context):
         for page in reader.pages:
             text += page.extract_text()
         logger.info("text extracted")
-        s3.put_object(Bucket = BUCKET_NAME, Key = key, body=text.encode("utf-8"))
+        s3.put_object(Bucket = BUCKET_NAME, Key = key, Body=text.encode("utf-8"))
         logger.info(f"text saved in {BUCKET_NAME}/{key}")
         return {"filename": body["filename"], "text": text, "cached": False}
     except Exception as e:
