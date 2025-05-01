@@ -7,6 +7,7 @@ import base64
 import hashlib
 import os
 import json
+from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel("INFO")
@@ -33,9 +34,11 @@ def pdf_handler(event, context):
             text = text["Body"].read().decode("utf-8")
             logger.info("returning cached object")
             return {"filename": body["filename"], "text": text, "cached": True}
-        except s3.exception.NoSuchKey:
-            logger.info("object not found in cache")
-            pass 
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'NoSuchKey':
+                logger.info("object not found in cache")
+            else:
+                raise e
         ###
         reader = PdfReader(io.BytesIO(file_bytes))
         text = ""
