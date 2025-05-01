@@ -19,9 +19,9 @@ BUCKET_NAME = os.getenv("BUCKET_NAME")
 
 @app.route("/extract", methods=["POST"], content_types=['application/json'], cors=True)
 def pdf_handler(event, context):
+    logger.info(event)
     body = event["body"]
     body = json.loads(body)
-    logger.info(event)
     try:
         file_b64 = body["file_content"]
         file_bytes = base64.b64decode(file_b64)
