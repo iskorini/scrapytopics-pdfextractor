@@ -36,7 +36,6 @@ jobs:
       - name: Install dependencies in layer structure
         working-directory: ${{ env.LAMBDA_SOURCE_DIR }}
         run: |
-          uv export --project="${{ env.LAMBDA_NAME }}" --no-editable --no-dev
           mkdir -p ../lambda-layer/python
           uv export --project="${{ env.LAMBDA_NAME }}" --no-editable --no-dev | \
           uv pip install \
