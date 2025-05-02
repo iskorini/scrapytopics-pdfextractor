@@ -51,7 +51,8 @@ def pdf_handler(event, context):
         doc = pymupdf.open(stream=f, filetype="pdf")
         text = ""
         for page in doc:
-            text += page.get_text().encode("utf-8")
+            text += page.get_text()
+        text = text.encode("utf-8")
         logger.info("text extracted")
         s3.put_object(Bucket=BUCKET_NAME, Key=key, Body=text.encode("utf-8"))
         logger.info(f"text saved in {BUCKET_NAME}/{key}")
