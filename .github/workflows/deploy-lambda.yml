@@ -41,8 +41,7 @@ jobs:
           uv pip install \
             --no-compile-bytecode \
             --python 3.12 \
-            --target ../lambda-layer/python \
-            -r requirements.txt
+            --target ../lambda-layer/python
 
       - name: Zip Lambda Layer
         run: |
