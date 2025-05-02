@@ -5,4 +5,3 @@ pdfextractor/.chalice/venv/
 .DS_Store
 pdfextractor/__pycache__
 pdfextractor/lambda-package
-pdfextractor/requirements.txt
