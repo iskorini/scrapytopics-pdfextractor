@@ -47,7 +47,8 @@ def pdf_handler(event, context):
             else:
                 raise e
         ###
-        doc = pymupdf.open(io.BytesIO(file_bytes))
+        f = io.BytesIO(file_bytes)
+        doc = pymupdf.open(stream=f, filetype="pdf")
         text = ""
         for page in doc:
             text += page.get_text().encode("utf-8")
