@@ -52,7 +52,6 @@ def pdf_handler(event, context):
         text = ""
         for page in doc:
             text += page.get_text()
-        text = text.encode("utf-8")
         logger.info("text extracted")
         s3.put_object(Bucket=BUCKET_NAME, Key=key, Body=text)
         logger.info(f"text saved in {BUCKET_NAME}/{key}")
