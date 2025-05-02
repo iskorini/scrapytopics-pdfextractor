@@ -5,5 +5,6 @@ requires-python = ">=3.12"
 dependencies = [
     "boto3>=1.38.3",
     "chalice>=1.31.4",
+    "pymupdf>=1.25.5",
     "pypdf>=5.4.0",
 ]

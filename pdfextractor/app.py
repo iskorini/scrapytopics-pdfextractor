@@ -1,5 +1,5 @@
 from chalice import Chalice
-from pypdf import PdfReader
+import fitz
 import boto3
 import io
 import logging
@@ -47,13 +47,12 @@ def pdf_handler(event, context):
             else:
                 raise e
         ###
-        reader = PdfReader(io.BytesIO(file_bytes))
-        text = ""
-        logger.info(f"PDF Pages {str(len(reader.pages))}")
-        for page in reader.pages:
-            text += page.extract_text()
+        with fitz.open(stream=file_bytes, filetype="pdf") as doc:
+            text = ""
+            for page in doc:
+                text += page.get_text()
         logger.info("text extracted")
-        s3.put_object(Bucket = BUCKET_NAME, Key = key, Body=text.encode("utf-8"))
+        s3.put_object(Bucket=BUCKET_NAME, Key=key, Body=text.encode("utf-8"))
         logger.info(f"text saved in {BUCKET_NAME}/{key}")
         response = {
             "statusCode": 200,
