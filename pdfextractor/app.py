@@ -33,7 +33,14 @@ def pdf_handler(event, context):
             text = s3.get_object(Bucket=BUCKET_NAME, Key=key)
             text = text["Body"].read().decode("utf-8")
             logger.info("returning cached object")
-            return {"filename": body["filename"], "text": text, "cached": True}
+            response = {
+                "statusCode": 200,
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "body": json.dumps({"filename": body["filename"], "text": text, "cached": True})
+            }
+            return response
         except ClientError as e:
             if e.response['Error']['Code'] == 'NoSuchKey':
                 logger.info("object not found in cache")
@@ -48,7 +55,14 @@ def pdf_handler(event, context):
         logger.info("text extracted")
         s3.put_object(Bucket = BUCKET_NAME, Key = key, Body=text.encode("utf-8"))
         logger.info(f"text saved in {BUCKET_NAME}/{key}")
-        return {"filename": body["filename"], "text": text, "cached": False}
+        response = {
+            "statusCode": 200,
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps({"filename": body["filename"], "text": text, "cached": False})
+        }
+        return response
     except Exception as e:
         print(e)
         raise e
