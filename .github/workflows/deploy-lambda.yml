@@ -37,11 +37,12 @@ jobs:
         working-directory: ${{ env.LAMBDA_SOURCE_DIR }}
         run: |
           mkdir -p ../lambda-layer/python
-          uv export --project="${{ env.LAMBDA_NAME }}" --no-editable --no-dev | \
+          uv export --project="${{ env.LAMBDA_NAME }}" --no-editable --no-dev > requirements.txt 
           uv pip install \
             --no-compile-bytecode \
             --python 3.12 \
-            --target ../lambda-layer/python
+            --target ../lambda-layer/python \
+            -r requirements.txt \
 
       - name: Zip Lambda Layer
         run: |
