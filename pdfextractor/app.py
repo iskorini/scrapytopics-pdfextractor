@@ -1,5 +1,5 @@
 from chalice import Chalice
-import fitz
+import pymupdf
 import boto3
 import io
 import logging
@@ -47,10 +47,10 @@ def pdf_handler(event, context):
             else:
                 raise e
         ###
-        with fitz.open(stream=file_bytes, filetype="pdf") as doc:
-            text = ""
-            for page in doc:
-                text += page.get_text()
+        doc = pymupdf.open(io.BytesIO(file_bytes))
+        text = ""
+        for page in doc:
+            text += page.get_text().encode("utf-8")
         logger.info("text extracted")
         s3.put_object(Bucket=BUCKET_NAME, Key=key, Body=text.encode("utf-8"))
         logger.info(f"text saved in {BUCKET_NAME}/{key}")
