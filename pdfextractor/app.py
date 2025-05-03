@@ -23,6 +23,12 @@ def pdf_handler(event, context):
     logger.info(event)
     body = event["body"]
     body = json.loads(body)
+    headers = {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+    }
     try:
         file_b64 = body["file_content"]
         file_bytes = base64.b64decode(file_b64)
@@ -35,9 +41,7 @@ def pdf_handler(event, context):
             logger.info("returning cached object")
             response = {
                 "statusCode": 200,
-                "headers": {
-                    "Content-Type": "application/json"
-                },
+                "headers": headers,
                 "body": json.dumps({"filename": body["filename"], "text": text, "cached": True})
             }
             return response
@@ -57,9 +61,7 @@ def pdf_handler(event, context):
         logger.info(f"text saved in {BUCKET_NAME}/{key}")
         response = {
             "statusCode": 200,
-            "headers": {
-                "Content-Type": "application/json"
-            },
+            "headers": headers,
             "body": json.dumps({"filename": body["filename"], "text": text, "cached": False})
         }
         return response
