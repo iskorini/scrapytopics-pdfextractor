@@ -1,3 +1,4 @@
+#### Terraform Configuration for AWS Lambda and API Gateway ####
 terraform {
     backend s3 {
         bucket = "fschipani-tf-state"
@@ -15,6 +16,8 @@ resource "aws_s3_bucket" "scrapy_topics_bucket" {
     bucket = var.scrapy_topics_bucket
     force_destroy = true
 }
+
+## LAMBDA ##
 
 resource "aws_lambda_layer_version" "pdfextractor_layer" {
   filename         = "${path.module}/layer.zip"
@@ -90,6 +93,8 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_attach" {
   role       = aws_iam_role.lambda_exec.name
   policy_arn = aws_iam_policy.lambda_s3_policy.arn
 }
+
+###############################
 
 # API Gateway REST
 resource "aws_api_gateway_rest_api" "pdf-api" {
