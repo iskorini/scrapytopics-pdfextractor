@@ -179,7 +179,6 @@ resource "aws_api_gateway_integration_response" "MyDemoIntegrationResponse" {
     "application/json" = "{\"statusCode\": 200}"
   }
 }
-}
 
 
 resource "aws_api_gateway_method_response" "options" {
