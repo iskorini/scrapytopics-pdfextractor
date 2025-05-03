@@ -160,7 +160,8 @@ resource "aws_api_gateway_integration" "options" {
   }
 }
 
-resource "aws_api_gateway_integration_response" "MyDemoIntegrationResponse" {
+resource "aws_api_gateway_integration_response" "options_response" {
+  depends_on = [aws_api_gateway_integration.options]
   rest_api_id = aws_api_gateway_rest_api.pdf-api.id
   resource_id = aws_api_gateway_resource.extract.id
   http_method = aws_api_gateway_method.options.http_method
@@ -174,9 +175,6 @@ resource "aws_api_gateway_integration_response" "MyDemoIntegrationResponse" {
 
   response_templates = {
     "application/json" = ""
-  }
-  request_templates = {
-    "application/json" = "{\"statusCode\": 200}"
   }
 }
 
