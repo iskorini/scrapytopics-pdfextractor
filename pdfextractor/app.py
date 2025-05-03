@@ -18,7 +18,7 @@ s3 = boto3.client(service_name="s3")
 
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 
-@app.route("/extract", methods=["POST"], content_types=['application/json'], cors=True)
+@app.route("/extract", methods=["POST"], content_types=['application/json'])
 def pdf_handler(event, context):
     logger.info(event)
     body = event["body"]
